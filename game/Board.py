@@ -1,7 +1,11 @@
 import chess
-from components import Bishop, King, Knight, Pawn, Queen, Rook
-
-from . import Square
+from components.Bishop import Bishop
+from components.King import King
+from components.Knight import Knight
+from components.Pawn import Pawn
+from components.Queen import Queen
+from components.Rook import Rook
+from game.Square import Square
 
 
 class Board:
@@ -41,29 +45,29 @@ class Board:
                 if piece != ".":
                     square = self.get_square_from_pos((x, y))
                     if piece == "r":
-                        square.occupying_piece = Rook((x, y), "black")
+                        square.occupying_piece = Rook((x, y), "black", self)
                     elif piece == "n":
-                        square.occupying_piece = Knight((x, y), "black")
+                        square.occupying_piece = Knight((x, y), "black", self)
                     elif piece == "b":
-                        square.occupying_piece = Bishop((x, y), "black")
+                        square.occupying_piece = Bishop((x, y), "black", self)
                     elif piece == "q":
-                        square.occupying_piece = Queen((x, y), "black")
+                        square.occupying_piece = Queen((x, y), "black", self)
                     elif piece == "k":
-                        square.occupying_piece = King((x, y), "black")
+                        square.occupying_piece = King((x, y), "black", self)
                     elif piece == "p":
-                        square.occupying_piece = Pawn((x, y), "black")
+                        square.occupying_piece = Pawn((x, y), "black", self)
                     elif piece == "R":
-                        square.occupying_piece = Rook((x, y), "white")
+                        square.occupying_piece = Rook((x, y), "white", self)
                     elif piece == "N":
-                        square.occupying_piece = Knight((x, y), "white")
+                        square.occupying_piece = Knight((x, y), "white", self)
                     elif piece == "B":
-                        square.occupying_piece = Bishop((x, y), "white")
+                        square.occupying_piece = Bishop((x, y), "white", self)
                     elif piece == "Q":
-                        square.occupying_piece = Queen((x, y), "white")
+                        square.occupying_piece = Queen((x, y), "white", self)
                     elif piece == "K":
-                        square.occupying_piece = King((x, y), "white")
+                        square.occupying_piece = King((x, y), "white", self)
                     elif piece == "P":
-                        square.occupying_piece = Pawn((x, y), "white")
+                        square.occupying_piece = Pawn((x, y), "white", self)
 
     def handle_click(self, mx, my):
         x = mx // self.tile_width

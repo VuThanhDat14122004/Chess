@@ -1,4 +1,4 @@
-from components import Queen
+# from components.Queen import Queen
 
 
 class Piece:
@@ -22,9 +22,9 @@ class Piece:
             board.selected_piece = None
             self.has_moved = True
 
-            if self.notation == " ":
-                if self.y == 0 or self.y == 7:
-                    square.occupying_piece = Queen((self.x, self.y), self.color, board)
+            # if self.notation == " ":
+            #     if self.y == 0 or self.y == 7:
+            #         square.occupying_piece = Queen((self.x, self.y), self.color, board)
 
             if self.notation == "K":
                 if prev_square.x - self.x == 2:
