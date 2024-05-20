@@ -8,85 +8,441 @@ pieceValues = {"p": 100, "n": 320, "b": 330, "r": 500, "q": 1500, "k": 20000}
 TranspositionTable = {}
 
 pawn_table = [
-    0, 0, 0, 0, 0, 0, 0, 0,
-    50, 50, 50, 50, 50, 50, 50, 50,
-    10, 10, 20, 30, 30, 20, 10, 10,
-    5, 5, 10, 25, 25, 10, 5, 5,
-    0, 0, 0, 20, 20, 0, 0, 0,
-    5, -5, -10, 0, 0, -10, -5, 5,
-    5, 10, 10, -20, -20, 10, 10, 5,
-    0, 0, 0, 0, 0, 0, 0, 0
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    50,
+    50,
+    50,
+    50,
+    50,
+    50,
+    50,
+    50,
+    10,
+    10,
+    20,
+    30,
+    30,
+    20,
+    10,
+    10,
+    5,
+    5,
+    10,
+    25,
+    25,
+    10,
+    5,
+    5,
+    0,
+    0,
+    0,
+    20,
+    20,
+    0,
+    0,
+    0,
+    5,
+    -5,
+    -10,
+    0,
+    0,
+    -10,
+    -5,
+    5,
+    5,
+    10,
+    10,
+    -20,
+    -20,
+    10,
+    10,
+    5,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
 ]
 
 knight_table = [
-    -50, -40, -30, -30, -30, -30, -40, -50,
-    -40, -20, 0, 0, 0, 0, -20, -40,
-    -30, 0, 10, 15, 15, 10, 0, -30,
-    -30, 5, 15, 20, 20, 15, 5, -30,
-    -30, 0, 15, 20, 20, 15, 0, -30,
-    -30, 5, 10, 15, 15, 10, 5, -30,
-    -40, -20, 0, 5, 5, 0, -20, -40,
-    -50, -40, -30, -30, -30, -30, -40, -50,
+    -50,
+    -40,
+    -30,
+    -30,
+    -30,
+    -30,
+    -40,
+    -50,
+    -40,
+    -20,
+    0,
+    0,
+    0,
+    0,
+    -20,
+    -40,
+    -30,
+    0,
+    10,
+    15,
+    15,
+    10,
+    0,
+    -30,
+    -30,
+    5,
+    15,
+    20,
+    20,
+    15,
+    5,
+    -30,
+    -30,
+    0,
+    15,
+    20,
+    20,
+    15,
+    0,
+    -30,
+    -30,
+    5,
+    10,
+    15,
+    15,
+    10,
+    5,
+    -30,
+    -40,
+    -20,
+    0,
+    5,
+    5,
+    0,
+    -20,
+    -40,
+    -50,
+    -40,
+    -30,
+    -30,
+    -30,
+    -30,
+    -40,
+    -50,
 ]
 
 bishop_table = [
-    -20, -10, -10, -10, -10, -10, -10, -20,
-    -10, 0, 0, 0, 0, 0, 0, -10,
-    -10, 0, 5, 10, 10, 5, 0, -10,
-    -10, 5, 5, 10, 10, 5, 5, -10,
-    -10, 0, 10, 10, 10, 10, 0, -10,
-    -10, 10, 10, 10, 10, 10, 10, -10,
-    -10, 5, 0, 0, 0, 0, 5, -10,
-    -20, -10, -10, -10, -10, -10, -10, -20,
+    -20,
+    -10,
+    -10,
+    -10,
+    -10,
+    -10,
+    -10,
+    -20,
+    -10,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    -10,
+    -10,
+    0,
+    5,
+    10,
+    10,
+    5,
+    0,
+    -10,
+    -10,
+    5,
+    5,
+    10,
+    10,
+    5,
+    5,
+    -10,
+    -10,
+    0,
+    10,
+    10,
+    10,
+    10,
+    0,
+    -10,
+    -10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    -10,
+    -10,
+    5,
+    0,
+    0,
+    0,
+    0,
+    5,
+    -10,
+    -20,
+    -10,
+    -10,
+    -10,
+    -10,
+    -10,
+    -10,
+    -20,
 ]
 
 rook_table = [
-    0, 0, 0, 0, 0, 0, 0, 0,
-    5, 10, 10, 10, 10, 10, 10, 5,
-    -5, 0, 0, 0, 0, 0, 0, -5,
-    -5, 0, 0, 0, 0, 0, 0, -5,
-    -5, 0, 0, 0, 0, 0, 0, -5,
-    -5, 0, 0, 0, 0, 0, 0, -5,
-    -5, 0, 0, 0, 0, 0, 0, -5,
-    0, 0, 0, 5, 5, 0, 0, 0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    5,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    5,
+    -5,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    -5,
+    -5,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    -5,
+    -5,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    -5,
+    -5,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    -5,
+    -5,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    -5,
+    0,
+    0,
+    0,
+    5,
+    5,
+    0,
+    0,
+    0,
 ]
 
 queen_table = [
-    -20, -10, -10, -5, -5, -10, -10, -20,
-    -10, 0, 0, 0, 0, 0, 0, -10,
-    -10, 0, 5, 5, 5, 5, 0, -10,
-    -5, 0, 5, 5, 5, 5, 0, -5,
-    0, 0, 5, 5, 5, 5, 0, -5,
-    -10, 5, 5, 5, 5, 5, 0, -10,
-    -10, 0, 5, 0, 0, 0, 0, -10,
-    -20, -10, -10, -5, -5, -10, -10, -20,
+    -20,
+    -10,
+    -10,
+    -5,
+    -5,
+    -10,
+    -10,
+    -20,
+    -10,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    -10,
+    -10,
+    0,
+    5,
+    5,
+    5,
+    5,
+    0,
+    -10,
+    -5,
+    0,
+    5,
+    5,
+    5,
+    5,
+    0,
+    -5,
+    0,
+    0,
+    5,
+    5,
+    5,
+    5,
+    0,
+    -5,
+    -10,
+    5,
+    5,
+    5,
+    5,
+    5,
+    0,
+    -10,
+    -10,
+    0,
+    5,
+    0,
+    0,
+    0,
+    0,
+    -10,
+    -20,
+    -10,
+    -10,
+    -5,
+    -5,
+    -10,
+    -10,
+    -20,
 ]
 
 king_table = [
-    -30, -40, -40, -50, -50, -40, -40, -30,
-    -30, -40, -40, -50, -50, -40, -40, -30,
-    -30, -40, -40, -50, -50, -40, -40, -30,
-    -30, -40, -40, -50, -50, -40, -40, -30,
-    -20, -30, -30, -40, -40, -30, -30, -20,
-    -10, -20, -20, -20, -20, -20, -20, -10,
-    20, 20, 0, 0, 0, 0, 20, 20,
-    20, 30, 10, 0, 0, 10, 30, 20,
+    -30,
+    -40,
+    -40,
+    -50,
+    -50,
+    -40,
+    -40,
+    -30,
+    -30,
+    -40,
+    -40,
+    -50,
+    -50,
+    -40,
+    -40,
+    -30,
+    -30,
+    -40,
+    -40,
+    -50,
+    -50,
+    -40,
+    -40,
+    -30,
+    -30,
+    -40,
+    -40,
+    -50,
+    -50,
+    -40,
+    -40,
+    -30,
+    -20,
+    -30,
+    -30,
+    -40,
+    -40,
+    -30,
+    -30,
+    -20,
+    -10,
+    -20,
+    -20,
+    -20,
+    -20,
+    -20,
+    -20,
+    -10,
+    20,
+    20,
+    0,
+    0,
+    0,
+    0,
+    20,
+    20,
+    20,
+    30,
+    10,
+    0,
+    0,
+    10,
+    30,
+    20,
 ]
+
 
 def EvaluatePiece(piece, square, is_white):
     if piece.piece_type == chess.PAWN:
-        value = pieceValues["p"] + (pawn_table[square] if is_white else pawn_table[chess.square_mirror(square)])
+        value = pieceValues["p"] + (
+            pawn_table[square] if is_white else pawn_table[chess.square_mirror(square)]
+        )
     elif piece.piece_type == chess.KNIGHT:
-        value = pieceValues["n"] + (knight_table[square] if is_white else knight_table[chess.square_mirror(square)])
+        value = pieceValues["n"] + (
+            knight_table[square]
+            if is_white
+            else knight_table[chess.square_mirror(square)]
+        )
     elif piece.piece_type == chess.BISHOP:
-        value = pieceValues["b"] + (bishop_table[square] if is_white else bishop_table[chess.square_mirror(square)])
+        value = pieceValues["b"] + (
+            bishop_table[square]
+            if is_white
+            else bishop_table[chess.square_mirror(square)]
+        )
     elif piece.piece_type == chess.ROOK:
-        value = pieceValues["r"] + (rook_table[square] if is_white else rook_table[chess.square_mirror(square)])
+        value = pieceValues["r"] + (
+            rook_table[square] if is_white else rook_table[chess.square_mirror(square)]
+        )
     elif piece.piece_type == chess.QUEEN:
-        value = pieceValues["q"] + (queen_table[square] if is_white else queen_table[chess.square_mirror(square)])
+        value = pieceValues["q"] + (
+            queen_table[square]
+            if is_white
+            else queen_table[chess.square_mirror(square)]
+        )
     elif piece.piece_type == chess.KING:
-        value = pieceValues["k"] + (king_table[square] if is_white else king_table[chess.square_mirror(square)])
+        value = pieceValues["k"] + (
+            king_table[square] if is_white else king_table[chess.square_mirror(square)]
+        )
     return value
+
 
 def TrySkipTurn(board: Board) -> bool:
     if board.is_check():
@@ -95,11 +451,14 @@ def TrySkipTurn(board: Board) -> bool:
         board.push(Move.null())
         return True
 
+
 def UndoSkipTurn(board: Board) -> None:
     board.pop()
 
+
 def ForceSkipTurn(board: Board) -> None:
     board.push(Move.null())
+
 
 def IsDraw(board: Board) -> bool:
     return (
@@ -108,6 +467,7 @@ def IsDraw(board: Board) -> bool:
         or board.is_stalemate()
         or board.is_repetition()
     )
+
 
 def getLegalCapture(board: Board) -> list[Move]:
     captures = []
@@ -120,9 +480,10 @@ def getLegalCapture(board: Board) -> list[Move]:
 killer_moves = [defaultdict(int) for _ in range(100)]
 history_heuristics = [defaultdict(int) for _ in range(2)]
 
+
 class ChessAl:
     def __init__(self):
-        self.depth = 4
+        self.depth = 5
         self.startAlpha = -MaxValue
         self.startBeta = MaxValue
         self.numPrunes = []
@@ -193,16 +554,19 @@ class ChessAl:
 
     def Search(self, depth, alpha, beta, maxPlayer):
         board_key = self.board._transposition_key()
-        if board_key in TranspositionTable and TranspositionTable[board_key]['depth'] >= depth:
+        if (
+            board_key in TranspositionTable
+            and TranspositionTable[board_key]["depth"] >= depth
+        ):
             tt_entry = TranspositionTable[board_key]
-            if tt_entry['flag'] == 'exact':
-                return tt_entry['value']
-            elif tt_entry['flag'] == 'lowerbound':
-                alpha = max(alpha, tt_entry['value'])
-            elif tt_entry['flag'] == 'upperbound':
-                beta = min(beta, tt_entry['value'])
+            if tt_entry["flag"] == "exact":
+                return tt_entry["value"]
+            elif tt_entry["flag"] == "lowerbound":
+                alpha = max(alpha, tt_entry["value"])
+            elif tt_entry["flag"] == "upperbound":
+                beta = min(beta, tt_entry["value"])
             if alpha >= beta:
-                return tt_entry['value']
+                return tt_entry["value"]
 
         if self.board.is_checkmate():
             return MaxValue if maxPlayer else -MaxValue
@@ -211,7 +575,7 @@ class ChessAl:
         if depth == 0:
             self.evaluationCalls += 1
             return self.AnalyzePosition()
-        
+
         # Null Move Pruning
         if depth >= 3 and not self.board.is_check():
             self.board.push(chess.Move.null())
@@ -219,7 +583,7 @@ class ChessAl:
             self.board.pop()
             if eval >= beta:
                 return eval
-        
+
         moves = self.MoveFilter()
 
         # Sắp xếp các nước đi dựa trên lịch sử heuristic
@@ -251,15 +615,19 @@ class ChessAl:
 
         # Cập nhật lịch sử heuristic
         history_heuristics[self.board.turn][bestMove] += depth * depth
-        
+
         # Transposition Table
         tt_entry = {
-            'value': bestEval,
-            'depth': depth,
-            'flag': 'exact' if alpha < bestEval < beta else 'lowerbound' if bestEval <= alpha else 'upperbound'
+            "value": bestEval,
+            "depth": depth,
+            "flag": (
+                "exact"
+                if alpha < bestEval < beta
+                else "lowerbound" if bestEval <= alpha else "upperbound"
+            ),
         }
         TranspositionTable[board_key] = tt_entry
-        
+
         return bestEval
 
     def AnalyzePosition(self):
@@ -333,5 +701,9 @@ class ChessAl:
             piece = self.board.piece_at(p)
             if piece:
                 is_white = piece.color == chess.WHITE
-                totalEval += EvaluatePiece(piece, p, is_white) if is_white else -EvaluatePiece(piece, p, is_white)
+                totalEval += (
+                    EvaluatePiece(piece, p, is_white)
+                    if is_white
+                    else -EvaluatePiece(piece, p, is_white)
+                )
         return self.sign * totalEval

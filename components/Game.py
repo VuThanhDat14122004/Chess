@@ -4,7 +4,6 @@ import pygame
 from components.Board import Board
 from components.DrawBoard import DrawBoard
 from components.DrawMenu import DrawMenu
-from Bot.engine2 import ChessAl2
 from Bot.engine import ChessAl
 
 
@@ -91,40 +90,5 @@ class Game:
                 board.move_piece(bot_move)
                 print(f"Bot move: {bot_move.uci()}")
 
-            """"
-            # Thực hiện nước đi của bot nếu đến lượt bot
-            if boardGame.turn:  # Trắng đi trước (bot1)
-                bot_move = self.bot1.Think(boardGame)
-                if bot_move is None:
-                    self.display_end_screen("Bot2 wins!")
-                    running = False
-                    continue
-                board.move_piece(bot_move)
-                print(f"Bot1 move: {bot_move.uci()}")
-            else:  # Đen đi sau (bot2)
-                bot_move = self.bot2.Think(boardGame)
-                if bot_move is None:
-                    self.display_end_screen("Bot1 wins!")
-                    running = False
-                    continue
-                board.move_piece(bot_move)
-                print(f"Bot2 move: {bot_move.uci()}")
-            """
-
     def get_coor(self, x, y):
         return x // self.square_size, 7 - y // self.square_size
-
-    # Hiển thị màn hình kết thúc
-    def display_end_screen(self, message):
-        font = pygame.font.SysFont(None, 55)
-        text = font.render(message, True, (255, 255, 255))
-        self.screen.fill((0, 0, 0))  # Làm sạch màn hình và tô màu đen
-        self.screen.blit(
-            text,
-            (
-                self.width // 2 - text.get_width() // 2,
-                self.height // 2 - text.get_height() // 2,
-            ),
-        )
-        pygame.display.flip()
-        pygame.time.wait(3000)  # Chờ 3 giây trước khi đóng cửa sổ
