@@ -1,6 +1,7 @@
 from collections import defaultdict
 import chess
 import chess.polyglot
+import math
 from chess import Move, Board
 
 MaxValue = 999999999
@@ -116,11 +117,7 @@ def getLegalCapture(board: Board) -> list[Move]:
             captures.append(m)
     return captures
 
-
-killer_moves = [defaultdict(int) for _ in range(100)]
-history_heuristics = [defaultdict(int) for _ in range(2)]
-
-class ChessAl:
+class ChessAl2:
     def __init__(self):
         self.depth = 4
         self.startAlpha = -MaxValue
@@ -211,20 +208,8 @@ class ChessAl:
         if depth == 0:
             self.evaluationCalls += 1
             return self.AnalyzePosition()
-        
-        # Null Move Pruning
-        if depth >= 3 and not self.board.is_check():
-            self.board.push(chess.Move.null())
-            eval = -self.Search(depth - 1 - 2, -beta, -beta + 1, not maxPlayer)
-            self.board.pop()
-            if eval >= beta:
-                return eval
-        
+
         moves = self.MoveFilter()
-
-        # Sắp xếp các nước đi dựa trên lịch sử heuristic
-        moves.sort(key=lambda m: history_heuristics[self.board.turn][m])
-
         bestEval = -MaxValue if maxPlayer else MaxValue
         bestMove = self.bestMoveTotal
         for m in moves:
@@ -242,15 +227,10 @@ class ChessAl:
                     bestMove = m
                     beta = min(beta, eval)
             if alpha >= beta:
-                # Killer Moves
-                killer_moves[depth][m] += 1
                 break
 
         if depth == self.depth:
             self.bestMoveTotal = bestMove
-
-        # Cập nhật lịch sử heuristic
-        history_heuristics[self.board.turn][bestMove] += depth * depth
         
         # Transposition Table
         tt_entry = {

@@ -1,4 +1,5 @@
 import chess
+from Bot.engine import IsDraw
 
 
 class Board:
@@ -40,3 +41,12 @@ class Board:
 
     def is_checkmate(self):
         return self.board.is_checkmate()
+
+    def is_check(self):
+        return self.board.is_check()
+
+    def king(self, color):
+        return self.board.king(color)
+
+    def is_draw(self):
+        return IsDraw(self.board)

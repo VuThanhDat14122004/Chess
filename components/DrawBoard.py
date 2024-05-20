@@ -16,6 +16,7 @@ class DrawBoard:
         self.DARK_SQUARE = (83, 100, 83)
         self.HIGHTLIGHT_COLOR = (100, 249, 83, 130)
         self.SELECTED_COLOR = (255, 0, 0)
+        self.CHECK_COLOR = (255, 0, 0, 128)
 
     def load_pieces(self):
         for piece in chess.PIECE_TYPES:
@@ -25,13 +26,16 @@ class DrawBoard:
                 image_path = f"./resources/imgs/{color_name}_{piece_name}.png"
                 self.piece_images[(piece, color)] = pygame.image.load(image_path)
 
-    def display(self, boardGame, selected_square, legal_moves):
+    def display(self, boardGame, selected_square, legal_moves, is_check):
 
         self.draw_board()
         self.draw_selected_square(selected_square)
         for move in legal_moves:
             if move.from_square == selected_square:
                 self.draw_highlight_square(move.to_square)
+
+        if is_check:
+            self.draw_check_square(boardGame)
 
         self.draw_pieces(boardGame)
 
@@ -96,6 +100,22 @@ class DrawBoard:
             ),
             self.BORDER_SIZE,
         )
+
+    def draw_check_square(self, board):
+        king_square = board.king(board.turn)
+        if king_square is not None:
+            col, row = king_square % 8, 7 - king_square // 8
+            pygame.draw.rect(
+                self.screen,
+                self.CHECK_COLOR,
+                (
+                    col * self.SQUARE_SIZE,
+                    row * self.SQUARE_SIZE,
+                    self.SQUARE_SIZE,
+                    self.SQUARE_SIZE,
+                ),
+                self.BORDER_SIZE,
+            )
 
     def get_coor(self, x, y):
         return x // self.SQUARE_SIZE, 7 - y // self.SQUARE_SIZE

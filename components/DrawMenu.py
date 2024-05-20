@@ -9,6 +9,7 @@ class DrawMenu:
     def display(self):
         self.screen.fill((255, 255, 255))
         pygame.draw.rect(self.screen, (0, 0, 0), (0, 0, 5, 5))
+        self.draw_count_down()
 
     def draw_count_down(self):
         pass
