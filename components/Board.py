@@ -11,7 +11,7 @@ class Board:
     def get_move(self, from_square, to_square):
         return chess.Move(from_square, to_square)
 
-    def move_piece(self, move):
+    def move_piece(self, move): 
         if move in self.get_legal_moves():
             self.board.push(move)
             return True, [move.xboard()[:2], move.xboard()[2:4]]
@@ -20,12 +20,15 @@ class Board:
     def get_legal_moves(self):
         return list(self.board.legal_moves)
 
-    def can_promote(self, move):
-        if self.board.piece_at(move.from_square).piece_type == chess.PAWN and (
-            move.to_square // 8 == 0 or move.to_square // 8 == 7
-        ):
+    def can_promote(self, from_square, to_square):
+        if self.board.piece_at(from_square) is None:
+            return False
+        if (self.board.piece_at(from_square).piece_type == chess.PAWN and (
+            ((to_square >= 0 and to_square <= 7)and(from_square >= 8 and from_square <= 15))
+            or((to_square >= 56 and to_square <= 63))and(from_square >= 48 and from_square <= 55))):
             return True
         return False
+    
 
     def promote(self, move, piece):
         move.promotion = piece
@@ -40,3 +43,15 @@ class Board:
 
     def is_checkmate(self):
         return self.board.is_checkmate()
+'''
+board = chess.Board()
+
+# Lấy danh sách các nước đi hợp lệ
+legal_moves = board.legal_moves
+
+# Duyệt qua từng nước đi hợp lệ
+for move in legal_moves:
+    # In ra thông tin về quân cờ thực hiện nước đi
+    print(f"Nước đi: {move.uci()}")
+    print(f"Quân cờ: {move.piece}")
+'''
