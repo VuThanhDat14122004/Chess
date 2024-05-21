@@ -1,3 +1,4 @@
+import time
 import chess
 import pygame
 
@@ -22,7 +23,7 @@ class Game:
         self.highlight_color = (100, 249, 83, 130)
         self.selected_color = (255, 0, 0)
 
-        self.bot2 = ChessAl()
+        self.bot = ChessAl()
 
     def display(self):
         drawBoard = DrawBoard(self.boardScreen)
@@ -86,9 +87,12 @@ class Game:
 
             # Thực hiện nước đi của bot nếu đến lượt bot
             if not boardGame.turn:
+                start_time = time.time()  # Bắt đầu đo thời gian
                 bot_move = self.bot.Think(boardGame)
                 board.move_piece(bot_move)
+                end_time = time.time()  # Kết thúc đo thời gian
                 print(f"Bot move: {bot_move.uci()}")
+                print(f"Time: {end_time - start_time}")
 
     def get_coor(self, x, y):
         return x // self.square_size, 7 - y // self.square_size

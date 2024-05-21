@@ -4,7 +4,8 @@ import chess.polyglot
 from chess import Move, Board
 
 MaxValue = 999999999
-pieceValues = {"p": 100, "n": 320, "b": 330, "r": 500, "q": 1500, "k": 20000}
+pieceValues = {None: 0, "p": 100, "n": 320, "b": 330, "r": 500, "q": 1500, "k": 20000}
+pieceRanks = {"p": 1, "n": 2, "b": 3, "r": 4, "q": 5, "k": 6}
 TranspositionTable = {}
 
 pawn_table = [
@@ -477,13 +478,13 @@ def getLegalCapture(board: Board) -> list[Move]:
     return captures
 
 
-killer_moves = [defaultdict(int) for _ in range(100)]
+killer_moves = [defaultdict(int) for _ in range(1000)]
 history_heuristics = [defaultdict(int) for _ in range(2)]
 
 
 class ChessAl:
     def __init__(self):
-        self.depth = 5
+        self.depth = 4
         self.startAlpha = -MaxValue
         self.startBeta = MaxValue
         self.numPrunes = []
@@ -554,6 +555,10 @@ class ChessAl:
 
     def Search(self, depth, alpha, beta, maxPlayer):
         board_key = self.board._transposition_key()
+        transposition = TranspositionTable.get(
+            board_key,
+            {"depth": -1, "value": 0, "flag": "none", "best_move_raw_value": None},
+        )
         if (
             board_key in TranspositionTable
             and TranspositionTable[board_key]["depth"] >= depth
@@ -572,12 +577,12 @@ class ChessAl:
             return MaxValue if maxPlayer else -MaxValue
         if IsDraw(self.board):
             return 0
-        if depth == 0:
+        if depth <= 0:
             self.evaluationCalls += 1
             return self.AnalyzePosition()
 
         # Null Move Pruning
-        if depth >= 3 and not self.board.is_check():
+        if depth >= 3 and not self.board.is_check() and not self.board.is_checkmate():
             self.board.push(chess.Move.null())
             eval = -self.Search(depth - 1 - 2, -beta, -beta + 1, not maxPlayer)
             self.board.pop()
@@ -587,11 +592,27 @@ class ChessAl:
         moves = self.MoveFilter()
 
         # Sắp xếp các nước đi dựa trên lịch sử heuristic
-        moves.sort(key=lambda m: history_heuristics[self.board.turn][m])
+        move_potential = []
+        for move in moves:
+            potential = -(
+                (transposition["best_move_raw_value"] == move.uci()) * 2_000_000_000
+                + self.board.is_capture(move)
+                * 1_000_000
+                * pieceValues.get(self.board.piece_type_at(move.to_square), 0)
+                - pieceValues.get(self.board.piece_type_at(move.from_square), 0)
+                + (move == killer_moves[depth].get(move.uci(), None)) * 900_000
+                + history_heuristics[self.board.turn].get(move.uci(), 0)
+            )
+            move_potential.append((potential, move))
+
+        move_potential.sort(key=lambda x: x[0])
+        moves = [move for _, move in move_potential]
 
         bestEval = -MaxValue if maxPlayer else MaxValue
         bestMove = self.bestMoveTotal
         for m in moves:
+            if not self.board.is_legal(m):
+                continue
             self.board.push(m)
             eval = self.Search(depth - 1, alpha, beta, not maxPlayer)
             self.board.pop()
@@ -607,7 +628,8 @@ class ChessAl:
                     beta = min(beta, eval)
             if alpha >= beta:
                 # Killer Moves
-                killer_moves[depth][m] += 1
+                if depth < len(killer_moves):
+                    killer_moves[depth][m.uci()] += 1
                 break
 
         if depth == self.depth:
@@ -625,6 +647,7 @@ class ChessAl:
                 if alpha < bestEval < beta
                 else "lowerbound" if bestEval <= alpha else "upperbound"
             ),
+            "best_move_raw_value": bestMove.uci(),  # Cập nhật khóa best_move_raw_value
         }
         TranspositionTable[board_key] = tt_entry
 
@@ -638,9 +661,10 @@ class ChessAl:
         if piece is None:
             return 0
 
-        pieceType = piece.symbol().lower()
+        # pieceType = piece.symbol().lower()
         color = piece.color
-        curPieceValue = pieceValues[pieceType]
+        is_white = piece.color == chess.WHITE
+        curPieceValue = EvaluatePiece(piece, curPiece, is_white)
         pieceEvaluation = float(curPieceValue)
         skipSuccess = False
         if pieceTurn:
@@ -648,18 +672,22 @@ class ChessAl:
             self.board.push(Move.null())
         isDefended = self.board.is_attacked_by(color, curPiece)
         WorseAttacker = 0
+        attacker_penalty = 0
+        defender_bonus = 0
         for m in list(self.board.legal_moves):
-            if (m.to_square == curPiece) and (
-                pieceValues[
-                    (
-                        self.board.piece_at(m.from_square).symbol().lower()
-                        if self.board.piece_at(m.from_square)
-                        else None
-                    )
-                ]
-                < pieceEvaluation
-            ):
-                WorseAttacker += 1
+            attacker_piece = self.board.piece_at(m.from_square)
+            if attacker_piece:
+                attacker_value = EvaluatePiece(
+                    attacker_piece, m.from_square, attacker_piece.color == chess.WHITE
+                )
+                attacker_rank = pieceRanks[attacker_piece.symbol().lower()]
+                cur_piece_rank = pieceRanks[piece.symbol().lower()]
+                if attacker_rank < cur_piece_rank and attacker_value < curPieceValue:
+                    WorseAttacker += 1
+                    attacker_penalty += 10 * (
+                        cur_piece_rank - attacker_rank
+                    )  # Phạt nếu bị tấn công bởi quân yếu hơn
+
         attackedByWorsePiece = False
         if WorseAttacker > 0:
             attackedByWorsePiece = True
@@ -672,38 +700,91 @@ class ChessAl:
         canCapture = []
         for m in list(self.board.legal_moves):
             if m.from_square == curPiece:
+                target_piece = self.board.piece_at(m.to_square)
+                if target_piece:
+                    target_value = EvaluatePiece(
+                        target_piece, m.to_square, target_piece.color == chess.WHITE
+                    )
+                    target_rank = pieceRanks[target_piece.symbol().lower()]
+                    if target_rank > cur_piece_rank:
+                        defender_bonus += (
+                            target_rank - cur_piece_rank
+                        ) * 10  # Thưởng nếu bảo vệ quân cờ có thể bị ăn bởi quân có rank cao hơn
+                else:
+                    target_value = 0
                 canCapture.append(
-                    pieceValues[
-                        (
-                            self.board.piece_at(m.to_square).symbol().lower()
-                            if self.board.piece_at(m.to_square)
-                            else None
-                        )
-                    ]
+                    target_value
                     - pieceEvaluation
-                    * (self.board.is_attacked_by(not color, m.to_square))
+                    * self.board.is_attacked_by(not color, m.to_square)
                 )
         bestCapture = max(canCapture) if canCapture else 0
         bestCapture = max(bestCapture, 0)
         UndoSkipTurn(self.board)
         if skipSuccess:
             UndoSkipTurn(self.board)
-        pieceEvaluation += float(numPossibleMoves - 1.25) / 10
+        pieceEvaluation += float(numPossibleMoves - 1.25) * 10
         pieceEvaluation += (0.5 if attackedByWorsePiece else 0) * float(curPieceValue)
         pieceEvaluation += (0.5 if (isAttacked and not isDefended) else 0) * float(
             curPieceValue
         )
+        pieceEvaluation -= attacker_penalty
+        pieceEvaluation += defender_bonus
         return pieceEvaluation
 
     def EvaluateAllFigure(self):
-        totalEval = float(0)
-        for p in range(64):
-            piece = self.board.piece_at(p)
+        score = 0.0
+        white_piece_count = 0
+        black_piece_count = 0
+        white_pawn_bonus = 0.0
+        black_pawn_bonus = 0.0
+
+        for square in chess.SQUARES:
+            piece = self.board.piece_at(square)
             if piece:
                 is_white = piece.color == chess.WHITE
-                totalEval += (
-                    EvaluatePiece(piece, p, is_white)
-                    if is_white
-                    else -EvaluatePiece(piece, p, is_white)
+                if is_white:
+                    white_piece_count += 1
+                else:
+                    black_piece_count += 1
+                score += self.EvaluateFigure(square, self.board.turn) * (
+                    1 if is_white else -1
                 )
-        return self.sign * totalEval
+
+        # Điều chỉnh điểm số dựa trên số lượng quân cờ (endgame trọng số)
+        total_pieces = white_piece_count + black_piece_count
+        endgame_multiplier = (
+            1.2
+            if total_pieces <= 12 or white_piece_count <= 6 or black_piece_count <= 6
+            else 1.0
+        )
+
+        if endgame_multiplier > 1.0:  # Điều kiện xác định cờ tàn
+            for square in chess.SQUARES:
+                piece = self.board.piece_at(square)
+                if piece and piece.piece_type == chess.PAWN:
+                    rank = chess.square_rank(square)
+                    if piece.color == chess.WHITE:
+                        if rank == 6:
+                            white_pawn_bonus += 50  # thưởng cho tốt ở rank 7
+                        elif rank == 5:
+                            white_pawn_bonus += 30  # thưởng cho tốt ở rank 6
+                    else:
+                        if rank == 1:
+                            black_pawn_bonus += 50  # thưởng cho tốt ở rank 2
+                        elif rank == 2:
+                            black_pawn_bonus += 30  # thưởng cho tốt ở rank 3
+
+        score += (white_pawn_bonus - black_pawn_bonus) * endgame_multiplier
+
+        # Tính toán điểm số cho trạng thái chiếu và chiếu bí
+        white_board_multiplier = -1 if self.board.turn == chess.WHITE else 1
+        if self.board.is_check():
+            score -= white_board_multiplier * (
+                pieceValues["k"] // 10
+            )  # Giảm điểm cho trạng thái chiếu
+        if self.board.is_checkmate():
+            score -= white_board_multiplier * (
+                pieceValues["k"] // 4
+            )  # Giảm điểm mạnh hơn cho trạng thái chiếu bí
+
+        return score * self.sign
