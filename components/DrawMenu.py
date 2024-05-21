@@ -16,9 +16,11 @@ class DrawMenu:
         self.is_promote = False
         self.color_promote = True
         self.current_time = 900
+        self.history_move = ["0","0","0","0","0","0","0","0","0","0","0","0"]
+        # self.piece_history = []
 
     def display(self):
-        self.screen.fill((255, 255, 255))
+        self.screen.fill((150,150,150))
         pygame.draw.rect(self.screen, (0, 0, 0), (0, 0, 320, 40))
 
         self.draw_count_down()
@@ -26,6 +28,7 @@ class DrawMenu:
         self.draw_board_promote()
         self.load_pieces()
         self.draw_promote_menu(self.color_promote)
+        self.draw_board_history()
 
     def draw_count_down(self):
         elapsed_time = pygame.time.get_ticks() - self.start_time
@@ -97,3 +100,43 @@ class DrawMenu:
                     ),
                     self.BORDER_SIZE,
                     )
+
+    def draw_board_history(self):
+        w_king = pygame.image.load("./resources/imgs/w_king.png")
+        w_queen = pygame.image.load("./resources/imgs/w_queen.png")
+        w_rook = pygame.image.load("./resources/imgs/w_rook.png")
+        w_bishop = pygame.image.load("./resources/imgs/w_bishop.png")
+        w_knight = pygame.image.load("./resources/imgs/w_knight.png")
+        w_pawn = pygame.image.load("./resources/imgs/w_pawn.png")
+        b_king = pygame.image.load("./resources/imgs/b_king.png")
+        b_queen = pygame.image.load("./resources/imgs/b_queen.png")
+        b_rook = pygame.image.load("./resources/imgs/b_rook.png")
+        b_bishop = pygame.image.load("./resources/imgs/b_bishop.png")
+        b_knight = pygame.image.load("./resources/imgs/b_knight.png")
+        b_pawn = pygame.image.load("./resources/imgs/b_pawn.png")
+        list_piece = [w_king, w_queen, w_rook, w_bishop, w_knight, w_pawn, b_king, b_queen, b_rook, b_bishop, b_knight, b_pawn]
+        iter = 0
+        iter_move = 0
+        
+        for col in range(4):
+            for row in range(6):
+                if col % 2 == 0:
+                    image = list_piece[iter]
+                    
+                    rect = image.get_rect(
+                        center=(
+                            (col % 4 + 0.5) * self.SQUARE_SIZE,
+                            (row+2) * self.SQUARE_SIZE,
+                        )
+                    )
+                    self.screen.blit(image, rect)
+                    iter += 1
+                else:
+                    move_his = self.history_move[iter_move]
+                    font = pygame.font.Font(None, 36)
+                    text = font.render(move_his, True, (0,0,0))
+                    if col == 1:
+                        text = font.render(move_his, True, (255,255,255))
+                    text_rect = text.get_rect(center=(col * self.SQUARE_SIZE + 20, (row+2) * self.SQUARE_SIZE))
+                    self.screen.blit(text, text_rect)
+                    iter_move += 1

@@ -4,7 +4,8 @@ from components.Board import Board
 from components.DrawBoard import DrawBoard
 from components.DrawMenu import DrawMenu
 import chess
-
+import time
+from Bot.engine import ChessAl2 as ChessAl
 
 class Game:
     def __init__(self, width, height, square_size, screen) -> None:
@@ -21,6 +22,9 @@ class Game:
         self.highlight_color = (100, 249, 83, 130)
         self.selected_color = (255, 0, 0)
         self.is_promote = False
+        self.bot = ChessAl()
+        self.history = []
+
     def display(self):
         drawBoard = DrawBoard(self.boardScreen)
         menu = DrawMenu(self.menuScreen)
@@ -39,6 +43,7 @@ class Game:
             for event in pygame.event.get():
                 
                 if event.type == pygame.QUIT:
+                    print(self.history)
                     return False
                 
                 elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -61,6 +66,10 @@ class Game:
                                     
                                     if self.get_num_promote(*event.pos, menu) == 0:
                                         print("QUEEN")
+                                        if board.board.piece_at(selected_square) is not None:
+                                            piece_name = board.board.piece_at(selected_square).symbol()
+                                            piece_move = move.uci()
+                                            self.history.append({piece_name: piece_move})
                                         move = board.get_move(selected_square, clicked_square)
                                         board.promote(move, chess.QUEEN)
                                         menu.is_promote = False
@@ -68,6 +77,10 @@ class Game:
                                         
                                     elif self.get_num_promote(*event.pos, menu) == 1:
                                         print("ROOK")
+                                        if board.board.piece_at(selected_square) is not None:
+                                            piece_name = board.board.piece_at(selected_square).symbol()
+                                            piece_move = move.uci()
+                                            self.history.append({piece_name: piece_move})
                                         move = board.get_move(selected_square, clicked_square)
                                         board.promote(move, chess.ROOK)
                                         menu.is_promote = False
@@ -76,6 +89,10 @@ class Game:
                                         
                                     elif self.get_num_promote(*event.pos, menu) == 2:
                                         print("BISHOP")
+                                        if board.board.piece_at(selected_square) is not None:
+                                            piece_name = board.board.piece_at(selected_square).symbol()
+                                            piece_move = move.uci()
+                                            self.history.append({piece_name: piece_move})
                                         move = board.get_move(selected_square, clicked_square)
                                         board.promote(move, chess.BISHOP)
                                         menu.is_promote = False
@@ -84,6 +101,10 @@ class Game:
                                         
                                     elif self.get_num_promote(*event.pos, menu) == 3:
                                         print("KNIGHT")
+                                        if board.board.piece_at(selected_square) is not None:
+                                            piece_name = board.board.piece_at(selected_square).symbol()
+                                            piece_move = move.uci()
+                                            self.history.append({piece_name: piece_move})
                                         move = board.get_move(selected_square, clicked_square)
                                         board.promote(move, chess.KNIGHT)
                                         menu.is_promote = False
@@ -91,6 +112,10 @@ class Game:
                                     
                                 if self.is_promote == False:
                                     move = board.get_move(selected_square, clicked_square)
+                                    if board.board.piece_at(selected_square) is not None:
+                                        piece_name = board.board.piece_at(selected_square).symbol()
+                                        piece_move = move.uci()
+                                        self.history.append({piece_name: piece_move})
                                     if board.move_piece(move):
                                         print(move.uci())
                                         selected_square = None
@@ -105,6 +130,18 @@ class Game:
                     if event.button == 3:
                         if board.board.move_stack:
                             board.board.pop()
+                            move_pop = self.history.pop()
+                            move_pop = list(move_pop.keys())[0]
+                            value_move = self.find_last_move(move_pop)
+                            move_pop = {move_pop: value_move}
+                            self.update_his(move_pop, menu)
+                        # if board.board.move_stack:
+                        #     board.board.pop()
+                        #     move_pop = self.history.pop()
+                        #     move_pop = list(move_pop.keys())[0]
+                        #     move_pop = {move_pop: '0'}
+                        #     self.update_his(move_pop, menu)
+                        
             drawBoard.display(boardGame, selected_square, legal_moves)
             menu.display()
 
@@ -114,6 +151,57 @@ class Game:
             # self.draw()
 
             pygame.display.flip()
+            # if not boardGame.turn:
+            #     start_time = time.time()  # Bắt đầu đo thời gian
+            #     bot_move = self.bot.Think(boardGame)
+            #     square = chess.parse_square(bot_move.uci()[2::])
+            #     board.move_piece(bot_move)
+            #     piece_name = board.board.piece_at(square).symbol()
+            #     self.history.append({piece_name: bot_move.uci()})   
+            #     end_time = time.time()  # Kết thúc đo thời gian
+            #     print(f"Bot move: {bot_move.uci()}")
+            #     print(f"Time: {end_time - start_time}")
+            if len(self.history) > 0:
+                his_move_piece = self.history[-1]
+                self.update_his(his_move_piece, menu)
+            
+
+
+    def find_last_move(self, key_move):
+        rev = self.history[::-1]
+        for move in rev:
+            if list(move.keys())[0] == key_move:
+                return list(move.values())[0]
+        return "0"
+
+
+
+    def update_his(self, his_move_piece, menu):
+        if list(his_move_piece.keys())[0] == "K":
+            menu.history_move[0] = list(his_move_piece.values())[0]
+        elif list(his_move_piece.keys())[0] == "Q":
+            menu.history_move[1] = list(his_move_piece.values())[0]
+        elif list(his_move_piece.keys())[0] == "R":
+            menu.history_move[2] = list(his_move_piece.values())[0]
+        elif list(his_move_piece.keys())[0] == "B":
+            menu.history_move[3] = list(his_move_piece.values())[0]
+        elif list(his_move_piece.keys())[0] == "N":
+            menu.history_move[4] = list(his_move_piece.values())[0]
+        elif list(his_move_piece.keys())[0] == "P":
+            menu.history_move[5] = list(his_move_piece.values())[0]
+        elif list(his_move_piece.keys())[0] == "k":
+            menu.history_move[6] = list(his_move_piece.values())[0]
+        elif list(his_move_piece.keys())[0] == "q":
+            menu.history_move[7] = list(his_move_piece.values())[0]
+        elif list(his_move_piece.keys())[0] == "r":
+            menu.history_move[8] = list(his_move_piece.values())[0]
+        elif list(his_move_piece.keys())[0] == "b":
+            menu.history_move[9] = list(his_move_piece.values())[0]
+        elif list(his_move_piece.keys())[0] == "n":
+            menu.history_move[10] = list(his_move_piece.values())[0]
+        elif list(his_move_piece.keys())[0] == "p":
+            menu.history_move[11] = list(his_move_piece.values())[0]
+
 
     def get_coor(self, x, y):
         return x // self.square_size, 7 - y // self.square_size
