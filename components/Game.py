@@ -5,7 +5,7 @@ from components.DrawBoard import DrawBoard
 from components.DrawMenu import DrawMenu
 import chess
 import time
-from Bot.engine import ChessAl2 as ChessAl
+from Bot.engine import ChessAl
 
 class Game:
     def __init__(self, width, height, square_size, screen) -> None:
@@ -37,7 +37,13 @@ class Game:
         clicked_square = -1
         legal_moves = []
         while running:
-            if menu.current_time == 0:
+            if board.is_checkmate():
+                print("White wins")
+                running = False
+            elif board.is_checkmate():
+                print("Black wins")
+                running = False
+            if menu.current_time <= 0:
                 print("time_over")
                 break
             for event in pygame.event.get():
@@ -143,28 +149,51 @@ class Game:
                         #     self.update_his(move_pop, menu)
                         
             drawBoard.display(boardGame, selected_square, legal_moves)
-            menu.display()
-
-            self.screen.blit(self.boardScreen, (0, 0))
-            self.screen.blit(self.menuScreen, (self.height, 0))
-
-            # self.draw()
-
-            pygame.display.flip()
-            # if not boardGame.turn:
-            #     start_time = time.time()  # Bắt đầu đo thời gian
-            #     bot_move = self.bot.Think(boardGame)
-            #     square = chess.parse_square(bot_move.uci()[2::])
-            #     board.move_piece(bot_move)
-            #     piece_name = board.board.piece_at(square).symbol()
-            #     self.history.append({piece_name: bot_move.uci()})   
-            #     end_time = time.time()  # Kết thúc đo thời gian
-            #     print(f"Bot move: {bot_move.uci()}")
-            #     print(f"Time: {end_time - start_time}")
             if len(self.history) > 0:
                 his_move_piece = self.history[-1]
                 self.update_his(his_move_piece, menu)
             
+            menu.display()
+            
+            if boardGame.turn:
+                #menu.start_time = pygame.time.get_ticks()
+                menu.draw_count_down()
+            else :
+                
+                menu.draw_time()
+            self.screen.blit(self.boardScreen, (0, 0))
+            self.screen.blit(self.menuScreen, (self.height, 0))
+
+            # self.draw()
+            
+            pygame.display.flip()
+            
+            if not boardGame.turn:
+                menu.current_time = 60
+                start_time = time.time()  # Bắt đầu đo thời gian
+                bot_move = self.bot.Think(boardGame)
+                square = 0
+                try:
+                    square = chess.parse_square(bot_move.uci()[2::])
+                except:
+                    if bot_move is not None:
+                        square = chess.parse_square(bot_move.uci()[0:2])
+                    else :
+                        print("Bot lose")
+                        break
+                board.move_piece(bot_move)
+                if board.board.piece_at(square) is not None:
+                    piece_name = board.board.piece_at(square).symbol()
+                    self.history.append({piece_name: bot_move.uci()})   
+                end_time = time.time()  # Kết thúc đo thời gian
+                print(f"Bot move: {bot_move.uci()}")
+                print(f"Time: {end_time - start_time}")
+                menu.current_time = 60
+            if not boardGame.turn:
+                menu.current_time = 60
+            if len(self.history) > 0:
+                his_move_piece = self.history[-1]
+                self.update_his(his_move_piece, menu)
 
 
     def find_last_move(self, key_move):

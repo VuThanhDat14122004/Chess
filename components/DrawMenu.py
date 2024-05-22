@@ -19,11 +19,12 @@ class DrawMenu:
         self.history_move = ["0","0","0","0","0","0","0","0","0","0","0","0"]
         # self.piece_history = []
 
+
     def display(self):
         self.screen.fill((150,150,150))
         pygame.draw.rect(self.screen, (0, 0, 0), (0, 0, 320, 40))
 
-        self.draw_count_down()
+        
         self.draw_board_not_promote()
         self.draw_board_promote()
         self.load_pieces()
@@ -35,6 +36,20 @@ class DrawMenu:
         second = int(elapsed_time // 1000)
 
         second = self.time_limit - second
+        minutes = int(second // 60)
+        second %= 60
+        self.current_time = minutes*60 + second
+        time_text = f"Time remaining {minutes:02}:{second:02}"
+        font = pygame.font.Font(None, 36)
+        text = font.render(time_text, True, (150,250, 100))
+        text_rect = text.get_rect(topright=(self.screen.get_width() - 40 , self.screen.get_height()- 630))
+        self.screen.blit(text, text_rect)
+        pygame.display.flip()
+
+    
+    def draw_time(self):
+        second = self.current_time
+        self.current_time = second
         minutes = int(second // 60)
         second %= 60
         self.current_time = minutes*60 + second
